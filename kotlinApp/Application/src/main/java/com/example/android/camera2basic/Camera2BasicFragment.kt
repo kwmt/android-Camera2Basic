@@ -262,7 +262,7 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        file = File(activity.getExternalFilesDir(null), PIC_FILE_NAME)
+        file = File(activity?.getExternalFilesDir(null), PIC_FILE_NAME)
     }
 
     override fun onResume() {
@@ -314,7 +314,7 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
      * @param height The height of available size for camera preview
      */
     private fun setUpCameraOutputs(width: Int, height: Int) {
-        val manager = activity.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val manager = activity?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         try {
             for (cameraId in manager.cameraIdList) {
                 val characteristics = manager.getCameraCharacteristics(cameraId)
@@ -337,6 +337,8 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
                         ImageFormat.JPEG, /*maxImages*/ 2).apply {
                     setOnImageAvailableListener(onImageAvailableListener, backgroundHandler)
                 }
+
+                val activity = activity ?: return
 
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
@@ -422,6 +424,7 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
      * Opens the camera specified by [Camera2BasicFragment.cameraId].
      */
     private fun openCamera(width: Int, height: Int) {
+        val activity = activity ?: return
         val permission = ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
         if (permission != PackageManager.PERMISSION_GRANTED) {
             requestCameraPermission()
@@ -533,7 +536,7 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
                         }
 
                         override fun onConfigureFailed(session: CameraCaptureSession) {
-                            activity.showToast("Failed")
+                            activity?.showToast("Failed")
                         }
                     }, null)
         } catch (e: CameraAccessException) {
@@ -551,7 +554,7 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
      * @param viewHeight The height of `textureView`
      */
     private fun configureTransform(viewWidth: Int, viewHeight: Int) {
-        activity ?: return
+        val activity = activity ?: return
         val rotation = activity.windowManager.defaultDisplay.rotation
         val matrix = Matrix()
         val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
@@ -618,7 +621,8 @@ class Camera2BasicFragment : Fragment(), View.OnClickListener,
      */
     private fun captureStillPicture() {
         try {
-            if (activity == null || cameraDevice == null) return
+            val activity = activity ?: return
+            if (cameraDevice == null) return
             val rotation = activity.windowManager.defaultDisplay.rotation
 
             // This is the CaptureRequest.Builder that we use to take a picture.
